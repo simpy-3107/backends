@@ -130,8 +130,9 @@ module.exports.login = async (req, res, next) => {
                     return res.status(404).json({ message: 'User not found' });
                 }
 
-                res.status(200).json(user);
-                next();
+                req.user = user;
+    next();  
+            
             } catch (err) {
                 res.status(500).json({ message: 'Error getting user profile', err });
             }
@@ -139,13 +140,22 @@ module.exports.login = async (req, res, next) => {
 
         module.exports.allproducts = async (req, res) => {
             try {
-                const products = await Product.find({});
-                res.status(200).json(products);
-            }
-            catch(err){
-                res.status(500).json({ message: 'Error getting user profile', err });
+                const products = await Product.find(); // Fetch all products
+                
+                if (!products) {
+                    // If no products found, send a response and exit the function early
+                    return res.status(404).json({ message: 'No products found' });
+                }
+                
+                // Send the products as a response
+                return res.status(200).json(products); // The return here ensures only one response is sent
+            } catch (err) {
+                console.error(err);
+                // If there is an error, send a response and exit the function
+                return res.status(500).json({ message: 'Error retrieving products', error: err.message });
             }
         };
+        
         module.exports.product = async (req, res) => {
             try {
                 const product = await Product.findById(req.params.id);
