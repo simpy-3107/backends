@@ -17,36 +17,51 @@ var instance = new Razorpay({
 module.exports.signup = async (req, res, next) => {
     const { name, email, password, role } = req.body;
 
+    // Check if name, email, and password are provided
     if (!name || !email || !password) {
-        return res.status(400).json({ message: 'Please provide all the fields' });
+        return res.status(400).json({ message: 'Please provide all the required fields' });
     }
+
+    // Hash the password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
 
     try {
+        // Check if the user already exists
         const userAlreadyExist = await User.findOne({ email });
         if (userAlreadyExist) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-   
-      
+        // If no role is provided, set a default role (e.g., 'user')
+        const userRole = role || 'user';
 
-        // Create user
-        const user =  await User.create({ name, email, password: hashedPassword, role });
+        // Create the new user
+        const user = new User({
+            name,
+            email,
+            password: hashedPassword,
+            role: userRole, // Add role to the user model
+        });
 
-        // Generate token
-        const token =  await jwt.sign({ user: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        // Save user to the database
+        // Save the user to the database
         const savedUser = await user.save();
 
-        // Respond with success message, user data, and token
-        res.status(201).json({ message: 'User created successfully', user:savedUser, token });
+        // Generate JWT token
+        const token = jwt.sign({ user: user._id }, process.env.JWT_SECRET
+            // Optional: Set token expiry time
+           );
+
+        // Respond with the success message, user data, and token
+        res.status(201).json({
+            message: 'User created successfully',
+            user: savedUser,
+            token,
+        });
     } catch (err) {
-        res.status(500).json({ message: 'Error creating user', err });
+        console.error(err); // Log error for better debugging
+        res.status(500).json({ message: 'Error creating user', error: err.message });
     }
 };
-
 
 
 module.exports.login = async (req, res, next) => {
