@@ -148,7 +148,7 @@ module.exports.login = async (req, res, next) => {
                 }
                 
                 // Send the products as a response
-                return res.status(200).json(products); // The return here ensures only one response is sent
+                return res.status(200).json({products}); // The return here ensures only one response is sent
             } catch (err) {
                 console.error(err);
                 // If there is an error, send a response and exit the function
