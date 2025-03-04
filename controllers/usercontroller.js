@@ -2,7 +2,7 @@ const User = require('../models/user');
 const Blacklist = require('../models/blacklist');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const product = require('../models/product');
+const Product = require('../models/product');
 const order = require('../models/order');
 const payment = require('../models/payment');
 
@@ -122,7 +122,7 @@ module.exports.login = async (req, res, next) => {
                 res.status(500).json({ message: 'Error logging out', err });
             }
         };
-        module.exports.isprofile = async (req, res) => {
+        module.exports.isprofile = async (req, res,next) => {
             try {
                 const user = await User.findById(req.user._id);
 
@@ -131,6 +131,7 @@ module.exports.login = async (req, res, next) => {
                 }
 
                 res.status(200).json(user);
+                next();
             } catch (err) {
                 res.status(500).json({ message: 'Error getting user profile', err });
             }
@@ -138,7 +139,7 @@ module.exports.login = async (req, res, next) => {
 
         module.exports.allproducts = async (req, res) => {
             try {
-                const products = await product.find({});
+                const products = await Product.find({});
                 res.status(200).json(products);
             }
             catch(err){
@@ -147,7 +148,7 @@ module.exports.login = async (req, res, next) => {
         };
         module.exports.product = async (req, res) => {
             try {
-                const product = await product.findById(req.params.id);
+                const product = await Product.findById(req.params.id);
                 if (!product) {
                     return res.status(404).json({ message: 'Product not found' });
                 }
@@ -160,7 +161,7 @@ module.exports.login = async (req, res, next) => {
 
         module.exports.createorder = async (req, res) => {
             try {
-                const product = await product.findById(req.params.id);
+                const product = await Product.findById(req.params.id);
                 const option = {
                     amount :product.amount*100,
                     currency:"INR",
