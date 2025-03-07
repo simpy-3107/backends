@@ -9,16 +9,15 @@ const paymentSchema = new mongoose.Schema({
     },
     signature:{
             type: String,
-            required: [true, 'Signature is required'],
+          
     },
     currency:{
         type: String,
-        required: [true, 'Currency is required'],
     },
     paymentID:{
         type: String,
-        required: [true, 'Payment ID is required'],
-        unique: true,
+        
+     
     },
     amount:{
         type: Number,

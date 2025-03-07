@@ -36,7 +36,7 @@ module.exports.signup = async (req, res, next) => {
         const userRole = role || 'user';
 
         // Create the new user
-        const user = new User({
+        const user = await User.create({
             name,
             email,
             password: hashedPassword,
@@ -47,9 +47,9 @@ module.exports.signup = async (req, res, next) => {
         const savedUser = await user.save();
 
         // Generate JWT token
-        const token = jwt.sign({ user: user._id }, process.env.JWT_SECRET
+        const token = jwt.sign({_id:user._id}, process.env.JWT_SECRET, { expiresIn: '1h' });
             // Optional: Set token expiry time
-           );
+           
 
         // Respond with the success message, user data, and token
         res.status(201).json({
@@ -90,9 +90,9 @@ module.exports.login = async (req, res, next) => {
         }
 
         // If password matches, generate a JWT token
-        const token = jwt.sign({ user: user._id }, process.env.JWT_SECRET
+        const token = jwt.sign({_id:user._id}, process.env.JWT_SECRET, { expiresIn: '1h' });
          // Optional: Set token expiry time
-        );
+        
 
         // Send success response with the token
         res.status(200).json({ message: 'Login successful', token });
@@ -122,21 +122,27 @@ module.exports.login = async (req, res, next) => {
                 res.status(500).json({ message: 'Error logging out', err });
             }
         };
-        module.exports.isprofile = async (req, res,next) => {
+        module.exports.isprofile = async (req, res) => {
+            console.log('Inside isprofile handler');  // Log when this function is called
+        
             try {
-                const user = await User.findById(req.user._id);
-
+                const user = req.user;  // This should be set by the isauthenticated middleware
                 if (!user) {
+                    console.error('User not found in profile handler');
                     return res.status(404).json({ message: 'User not found' });
                 }
-
-                req.user = user;
-    next();  
-            
+        
+                console.log('User profile:', user);  // Log the user to verify it's correct
+        
+                // Send the profile data back in the response
+                res.status(200).json({ profile: user });
+        
             } catch (err) {
-                res.status(500).json({ message: 'Error getting user profile', err });
+                console.error('Error in isprofile handler:', err);  // Log the error details
+                res.status(500).json({ message: 'Error getting user profile', err: err });
             }
         };
+        
 
         module.exports.allproducts = async (req, res) => {
             try {
@@ -177,7 +183,7 @@ module.exports.login = async (req, res, next) => {
                     currency:"INR",
                     reciept:product._id,
                 }
-                const order = await instance.order.create(option);
+                const order = await instance.orders.create(option);
                  res.status(200).json(order);
 
                  const payment = await payment.create({
