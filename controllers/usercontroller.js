@@ -122,7 +122,7 @@ module.exports.login = async (req, res, next) => {
                 res.status(500).json({ message: 'Error logging out', err });
             }
         };
-        module.exports.isprofile = async (req, res) => {
+        module.exports.isprofile = async (req, res, next) => {
             console.log('Inside isprofile handler');  // Log when this function is called
         
             try {
@@ -134,9 +134,11 @@ module.exports.login = async (req, res, next) => {
         
                 console.log('User profile:', user);  // Log the user to verify it's correct
         
-                // Send the profile data back in the response
-                res.status(200).json({ profile: user });
+                // Attach the user to the request and pass control to the next middleware
+                req.user = user;
         
+                next();  // This is important! It allows the next middleware (user.allproducts) to run.
+                
             } catch (err) {
                 console.error('Error in isprofile handler:', err);  // Log the error details
                 res.status(500).json({ message: 'Error getting user profile', err: err });
