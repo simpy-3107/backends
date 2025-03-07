@@ -11,9 +11,10 @@ router.get("/allproducts",authentication.isauthenticated,user.isprofile,user.all
 router.get("product/:id",authentication.isauthenticated,user.isprofile,user.product);
 router.get("/order/:id",authentication.isauthenticated,user.createorder);
 router.get("/verifypayment/:id",authentication.isauthenticated,user.isprofile,user.verifypayment);
-router.get('/profile', authentication.isauthenticated, (req, res) => {
+router.get('/profile', authentication.isauthenticated, user.isprofile, (req, res) => {
     console.log('Profile route accessed');
-    user.isprofile(req, res);  // Proceed to the profile handler
+    // Send the response here after `user.isprofile` has run
+    res.json({ message: 'Profile accessed', user: req.user });
 });
 
 
