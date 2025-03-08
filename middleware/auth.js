@@ -17,7 +17,8 @@ module.exports.isauthenticated = async (req, res, next) => {
         }
 
         const token = authHeader.split(' ')[1];  // Extract the token
-        console.log('Token:', token);  // Log the token to check
+        console.log('Token:', token);
+        
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         

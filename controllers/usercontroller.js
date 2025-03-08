@@ -103,25 +103,31 @@ module.exports.login = async (req, res, next) => {
         res.status(500).json({ message: 'Error logging in', err });
     }
 };
-    module.exports.logout = async (req, res,next) => {
-        try{
-                const token = req.headers.authentication.split(' ')[1];
+module.exports.logout = async (req, res, next) => {
+    try {
+        // Fix: Correct the header name to 'authorization'
+        const token = req.headers.authorization.split(' ')[1];
 
-                if (!token) {
-                    return res.status(400).json({ message: 'Token is required' });
-                    
-                }
-                const blacklist = await Blacklist.findOne({ token });
-                if(blacklist){
-                    return res.status(400).json({ message: 'Token has been blacklisted' });
-                }
-                await Blacklist.create({ token });
-                res.status(200).json({ message: 'Logged out successfully' });
-            }
-            catch(err){
-                res.status(500).json({ message: 'Error logging out', err });
-            }
-        };
+        if (!token) {
+            return res.status(400).json({ message: 'Token is required' });
+        }
+
+        // Check if token is in the blacklist
+        const blacklist = await Blacklist.findOne({ token });
+        if (blacklist) {
+            return res.status(400).json({ message: 'Token has been blacklisted' });
+        }
+
+        // Blacklist the token
+        await Blacklist.create({ token });
+
+        res.status(200).json({ message: 'Logged out successfully' });
+    } catch (err) {
+        console.error(err); // Log the error for debugging
+        res.status(500).json({ message: 'Error logging out', error: err });
+    }
+};
+
         module.exports.isprofile = async (req, res, next) => {
             console.log('Inside isprofile handler');  // Log when this function is called
         

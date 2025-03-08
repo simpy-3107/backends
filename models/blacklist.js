@@ -8,7 +8,7 @@ const blacklistSchema = new mongoose.Schema({
     },
     },{timestamps: true});
 
-    blacklistSchema.index( { unique: true });
+    blacklistSchema.index( {token:1},{ unique: true });
 
         const blacklist = mongoose.model('Blacklist', blacklistSchema);
         module.exports = blacklist;
