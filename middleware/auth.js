@@ -20,10 +20,7 @@ module.exports.isauthenticated = async (req, res, next) => {
         console.log('Token:', token);  // Log the token to check
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (err) {
-            console.error("Token verification failed:", err);
-            return res.status(401).json({ message: 'Unauthorized - Token Expired or Invalid' });
-          }
+        
         console.log('Decoded Token:', decoded);  // Log decoded token for debugging
 
         const user = await User.findById(decoded._id);  // Find the user by ID
