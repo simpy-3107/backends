@@ -179,25 +179,46 @@ module.exports.login = async (req, res, next) => {
 
         module.exports.createorder = async (req, res) => {
             try {
+                // Find the product based on the ID
                 const product = await Product.findById(req.params.id);
-                const option = {
-                    amount :product.price*100,
-                    currency:"INR",
-                    reciept:product._id,
+                
+                // If product doesn't exist, return a 404 error
+                if (!product) {
+                    return res.status(404).json({ message: 'Product not found' });
                 }
-                const order = await instance.orders.create(option);
-                 res.status(200).json(order);
-
-                 const payment = await payment.create({
-                    orderid:order.id,
-                    amount :product.price,
-                    currency:"INR",
-                    status :"pending" 
-                 })
-                }catch(err){
-                    res.status(500).json({ message: 'Error creating order', err });
+        
+                // Razorpay order options
+                const options = {
+                    amount: product.price * 100, // amount in paise
+                    currency: "INR",
+                    receipt: product._id.toString(), // Corrected 'reciept' to 'receipt'
+                };
+        
+                // Create the Razorpay order
+                const order = await instance.orders.create(options);
+        
+                // If order creation failed, return an error
+                if (!order) {
+                    return res.status(500).json({ message: 'Error creating Razorpay order' });
                 }
+        
+                // Create the payment record in the database
+                const payment = await payment.create({
+                    orderid: order.id,
+                    amount: product.price,
+                    currency: "INR",
+                    status: "pending",
+                });
+        
+                // Return the order and payment details
+                return res.status(200).json({ order, payment });
+            } catch (err) {
+                // Catch any other errors and return a server error response
+                console.error(err); // Log the error for debugging
+                return res.status(500).json({ message: 'Error creating order', err });
             }
+        };
+        
                 module.exports.verifypayment = async (req, res) => {
                     try {
                         const { paymentID,orderid,signature } = req.body;
