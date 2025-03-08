@@ -146,7 +146,7 @@ module.exports.login = async (req, res, next) => {
         };
         
 
-        module.exports.allproducts = async (req, res) => {
+        module.exports.allproducts = async (req, res,next) => {
             try {
                 const products = await Product.find(); // Fetch all products
                 
@@ -164,7 +164,7 @@ module.exports.login = async (req, res, next) => {
             }
         };
         
-        module.exports.product = async (req, res) => {
+        module.exports.product = async (req, res,next) => {
             try {
                 const product = await Product.findById(req.params.id);
                 if (!product) {
@@ -181,7 +181,7 @@ module.exports.login = async (req, res, next) => {
             try {
                 const product = await Product.findById(req.params.id);
                 const option = {
-                    amount :product.amount*100,
+                    amount :product.price*100,
                     currency:"INR",
                     reciept:product._id,
                 }
@@ -190,7 +190,7 @@ module.exports.login = async (req, res, next) => {
 
                  const payment = await payment.create({
                     orderid:order.id,
-                    amount :product.amount,
+                    amount :product.price,
                     currency:"INR",
                     status :"pending" 
                  })

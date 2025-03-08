@@ -1,7 +1,14 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-app.use(cors());
+
+app.use(cors({
+  origin:"*", // allow the frontend origin
+  methods: ['GET', 'POST','options'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+app.options('*', cors());  // Allow all preflight OPTIONS requests
+
 const dotenv = require('dotenv');
 dotenv.config();
 const connectDB = require('./config/db');
